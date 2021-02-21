@@ -1,7 +1,7 @@
 import torch
 
 
-'''Set up residual CNN to prevent vanishing gradient'''
+'''Residual CNN constructed to prevent vanishing gradient'''
 '''Dropout layers are added to generalize the model'''
 class ResidualConv2D(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, dropout=0.1, negative_slope=1e-2):
