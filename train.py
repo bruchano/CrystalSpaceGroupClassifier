@@ -6,7 +6,7 @@ import argparse
 import os
 
 epoch = 3
-lr = 1e-5
+lr = 1e-3
 MODEL_PATH = None
 SAVE_PATH = None
 
