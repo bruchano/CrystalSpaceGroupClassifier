@@ -16,7 +16,7 @@ class FullyConnected(torch.nn.Module):
 
 
 '''NN model setup'''
-''''''
+'''Optional dimensions of fully-connected network can be added'''
 class SpaceGroupNN(torch.nn.Module):
     def __init__(self, out_features, dropout, negative_slope, *args):
         super().__init__()

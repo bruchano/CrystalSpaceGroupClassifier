@@ -22,7 +22,7 @@ class ResidualConv2D(torch.nn.Module):
 
 
 '''CNN model setup'''
-'''Optional number of residual CNN and fully-connected network can be added'''
+'''Optional dimensions of residual CNN and fully-connected network can be added'''
 class SpaceGroupCNN(torch.nn.Module):
     def __init__(self, n_cnn, channels, out_features, kernel_size=3, dropout=0.1, negative_slope=1e-2, *args):
         super().__init__()
