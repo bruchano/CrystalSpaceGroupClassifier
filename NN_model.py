@@ -1,8 +1,11 @@
 import torch
 
 
-'''Custom changes on the fully-connected network'''
 class FullyConnected(torch.nn.Module):
+    """
+        Custom changes on fully-connected
+        dropout layer was found to help generalizing the model
+    """
     def __init__(self, in_features, out_features, dropout, negative_slope):
         super().__init__()
         self.dropout = torch.nn.Dropout(dropout)
@@ -15,10 +18,16 @@ class FullyConnected(torch.nn.Module):
         return self.fc(x)
 
 
-'''NN model setup'''
-'''Optional dimensions of fully-connected network can be added'''
+
 class SpaceGroupNN(torch.nn.Module):
-    def __init__(self, out_features, dropout, negative_slope, *args):
+    """
+        NN Model
+        :param out_features: number of output space groups
+        :param dropout: dropout percentage of dropout (0 - 1)
+        :param negative_slope: negative slope for leaky RELU
+        :param *args: dimension for the fully-connected layers (e.g. 2048, 1024, 512, 128)
+    """
+    def __init__(self, out_features, dropout=0.1, negative_slope=1e-2, *args):
         super().__init__()
         self.fc = torch.nn.Sequential()
         if args:
@@ -27,7 +36,7 @@ class SpaceGroupNN(torch.nn.Module):
                 self.fc.add_module(str(i + 1), FullyConnected(args[i], args[i + 1], dropout, negative_slope))
             self.fc.add_module(str(len(args)), FullyConnected(args[-1], out_features, dropout, negative_slope))
         else:
-            self.fc.add_module("0", torch.nn.Linear(1200, out_features, dropout))
+            self.fc.add_module("0", FullyConnected(1200, out_features, dropout, negative_slope))
 
     def forward(self, x):
         x = x.view(1, -1)
