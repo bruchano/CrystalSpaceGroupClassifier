@@ -33,23 +33,27 @@ class SpaceGroupCNN(torch.nn.Module):
         :param negative_slope: negative slope for leaky RELU
         :param *args: dimension for the fully-connected layers (e.g. 2048, 1024, 512, 128)
     """
-    def __init__(self, n_cnn, channels, out_features, kernel_size=3, dropout=0.1, negative_slope=1e-2, *args):
+    def __init__(self, n_cnn, channels, out_features, n_fc=None, kernel_size=3, dropout=0.1, negative_slope=1e-2):
         super().__init__()
         self.dropout = torch.nn.Dropout(dropout)
         self.cnn = torch.nn.Conv2d(in_channels=1, out_channels=channels, kernel_size=kernel_size)
-        self.residualcnn = torch.nn.Sequential(*[ResidualConv2D(in_channels=channels, out_channels=channels, kernel_size=kernel_size, dropout=dropout, negative_slope=negative_slope) for i in range(n_cnn)])
+        self.residualcnn = torch.nn.Sequential(
+            *[ResidualConv2D(in_channels=channels, out_channels=channels, kernel_size=kernel_size,
+                             dropout=dropout, negative_slope=negative_slope) for i in range(n_cnn)]
+        )
         self.fc = torch.nn.Sequential()
-        if args:
-            self.fc.add_module("0", torch.nn.Linear(channels * 1200, args[0]))
-            for i in range(len(args) - 1):
-                self.fc.add_module(str(i + 1), torch.nn.Linear(args[i], args[i + 1]))
-            self.fc.add_module(str(len(args)), torch.nn.Linear(args[-1], out_features))
+        if n_fc:
+            self.fc.add_module("0", torch.nn.Linear(channels * 46 * 98, n_fc[0]))
+            for i in range(len(n_fc) - 1):
+                self.fc.add_module(str(i + 1), torch.nn.Linear(n_fc[i], n_fc[i + 1]))
+            self.fc.add_module(str(len(n_fc)), torch.nn.Linear(n_fc[-1], out_features))
         else:
-            self.fc.add_module("0", torch.nn.Linear(channels * 1200, out_features))
+            self.fc.add_module("0", torch.nn.Linear(channels * 46 * 98, out_features))
         self.lrelu = torch.nn.LeakyReLU(negative_slope)
 
     def forward(self, x):
-        x = x.view(1, 1, -1, 48)
+        x = x.reshape(1, 1, x.shape[0], x.shape[1])
+        size = x.shape
         x = self.lrelu(self.cnn(x))
         norm1 = torch.nn.LayerNorm(x.shape[3])
         x = norm1(x)
