@@ -50,7 +50,7 @@ MODEL_PATH = None
 GPU = "GPU4"
 VER = "_1"
 SAVE_PATH = "models/" + SPACEGROUP_NAME[CRYSTAL_SYSTEM] + "_" + NET + "_ch_" + str(CHANNELS) + "_lr_" + str(lr) + "_" + GPU + VER + ".pt"
-FIGURE_PATH = "figures/" + NET + "_" + GPU + VER + ".png"
+FIGURE_PATH = "figures/" + SPACEGROUP_NAME[CRYSTAL_SYSTEM] + NET + "_" + GPU + VER + ".png"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-t", "--train", action="store_true")
