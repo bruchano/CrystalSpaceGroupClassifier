@@ -25,17 +25,32 @@ range		count	name
 195 - 230	36		Cubic
 """
 
-CRYSTAL_SYSTEM = 3
-N_CNN = 2
-CHANNELS = 32
-OUT_FEATURES = 68
-N_FC = [1024, 256, 128]
+SPACEGROUP_NAME = {
+    0: "Triclinic",
+    1: "Monoclinic",
+    2: "Orthorhombic",
+    3: "Tetragonal",
+    4: "Trigonal",
+    5: "Hexagonal",
+    6: "Cubic"
+}
 
-epoch = 1
-lr = 1e-2
+CRYSTAL_SYSTEM = 3
+NET = "NN"
+N_CNN = 2
+CHANNELS = 6
+OUT_FEATURES = 68
+N_FC = [1024, 512, 128]
+
+epoch = 10
+lr = 5e-2
 
 MODEL_PATH = None
-SAVE_PATH = str(CRYSTAL_SYSTEM) + "_lr_" + str(lr) + ".pt"
+
+GPU = "GPU4"
+VER = "_1"
+SAVE_PATH = "models/" + SPACEGROUP_NAME[CRYSTAL_SYSTEM] + "_" + NET + "_ch_" + str(CHANNELS) + "_lr_" + str(lr) + "_" + GPU + VER + ".pt"
+FIGURE_PATH = "figures/" + NET + "_" + GPU + VER + ".png"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-t", "--train", action="store_true")
@@ -58,9 +73,15 @@ if args.model:
 
 def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = SpaceGroupCNN(N_CNN, CHANNELS, OUT_FEATURES, N_FC).to(device)
+
+    if NET == "NN":
+        model = SpaceGroupNN(OUT_FEATURES, N_FC).to(device)
+    else:
+        model = SpaceGroupCNN(N_CNN, CHANNELS, OUT_FEATURES, N_FC).to(device)
+
     if MODEL_PATH:
-        model.state_dict(torch.load(MODEL_PATH))
+        model.load_state_dict(torch.load(MODEL_PATH))
+
     model.train()
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -70,9 +91,9 @@ def train():
     dataset = data_loader.Cs2Sg(CRYSTAL_SYSTEM, 0.1)
     train_loader, valid_loader = data_loader.get_valid_train_loader(dataset, 32)
 
-    network.validate_train_loop(device, model, optimizer, scheduler, criterion, valid_loader, train_loader, epoch)
+    network.validate_train_loop(device, model, optimizer, scheduler, criterion, valid_loader, train_loader, epoch, SAVE_PATH, FIGURE_PATH)
 
-    torch.save(model.state_dict(), SAVE_PATH)
+
 
 
 if __name__ == "__main__":

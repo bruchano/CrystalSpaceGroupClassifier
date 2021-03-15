@@ -53,7 +53,6 @@ class Cs2Sg(Dataset):
             path_list = f.readlines()
         shuffle(path_list)
         valid_len = math.floor(len(path_list) * valid_size)
-        print("valid length:", valid_len)
 
         for i, path in enumerate(path_list):
             data_path = os.path.join(PATH, path.rstrip())
@@ -89,7 +88,6 @@ def get_valid_train_loader(dataset, batch_size):
     num = len(dataset)
     indices = [i for i in range(num)]
     split = dataset.valid_size
-    print("split:", split)
 
     valid_idx, train_idx = indices[:split], indices[split:]
 

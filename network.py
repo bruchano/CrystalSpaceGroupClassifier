@@ -18,7 +18,7 @@ def train_one_epoch(device, model, optimizer, criterion, train_loader):
             loss = criterion(output, data_label)
             loss.backward()
             optimizer.step()
-            loss_epoch = loss.item()
+            loss_epoch += loss.item()
         print("\r\ttrain batch:{}/{}".format(b, len(train_loader)), end="")
     return round(loss_epoch, 4)
 
@@ -49,7 +49,7 @@ def validate_one_epoch(device, model, criterion, valid_loader):
     return round(val_loss, 4), round(num_correct*100, 4)
 
 
-def validate_train_loop(device, model, optimizer, scheduler, criterion, valid_loader, train_loader, num_epoch):
+def validate_train_loop(device, model, optimizer, scheduler, criterion, valid_loader, train_loader, num_epoch, save_path, fig_path):
     result = validate_one_epoch(device, model, criterion, valid_loader)
     print("\rvalid loss:{} accuracy:{}%".format(*result))
 
@@ -72,6 +72,7 @@ def validate_train_loop(device, model, optimizer, scheduler, criterion, valid_lo
         pred_res.append(result[1])  # plot prediction result Vs. epoch
 
         scheduler.step(epoch)
+        torch.save(model.state_dict(), save_path)
 
     plt.figure()
     plt.subplot(2, 1, 1)
@@ -87,7 +88,7 @@ def validate_train_loop(device, model, optimizer, scheduler, criterion, valid_lo
     plt.ylabel("prediction result (%)")
     plt.title("prediction Vs. epoch")
     plt.ylim(0, 100)
-    plt.savefig("Loss.png")
+    plt.savefig(fig_path)
     plt.show()
 
 
